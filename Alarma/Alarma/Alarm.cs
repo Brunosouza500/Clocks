@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 
+using System.Windows.Forms;
+using System.Media;
+
 namespace Alarma
 {
     public class Alarm
@@ -30,8 +33,24 @@ namespace Alarma
 
         public void trigger(object obj)
         {
+            MessageBox.Show("Timer works:DDD");
 
             // Sound alarm
+            string soundString = Config.FILEPATH_ALARM_SOUND + this.melodia + ".mp3";
+            System.Media.SoundPlayer player = new System.Media.SoundPlayer(soundString);
+            try
+            {
+                player.Play();
+            }
+            catch (Exception)
+            {
+
+                Logic LogicClass = new Logic();
+                LogicClass.displayError(Config.status_t.ERROR_FILE_SOUNDPLAY);
+            }
+
+
+
             // Delete alarm from .csv file
             // DIspose timer           
 

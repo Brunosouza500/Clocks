@@ -64,6 +64,8 @@
     <Compile Include="setAlarm.Designer.cs">
       <DependentUpon>setAlarm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Sound.cs" />
+    <Compile Include="Timehandler.cs" />
     <EmbeddedResource Include="Menu.resx">
       <DependentUpon>Menu.cs</DependentUpon>
     </EmbeddedResource>

@@ -11,6 +11,9 @@ using System.Windows.Forms;
 using System.IO;
 using System.Threading;
 
+using static Alarma.Config.status_t;
+
+
 namespace Alarma
 {
     public partial class frmSetAlarm : Form
@@ -28,45 +31,35 @@ namespace Alarma
 
         private void btnSetAlarm_Click(object sender, EventArgs e)
         {
+            // Create status st.
+            Config.status_t st;
+
             // Create Logic class (we will use its method(s)):
             Logic LogicClass = new Logic();
 
             // Get date in a DateTime type:
-            DateTime AlarmDate = new DateTime(dtpFecha.Value.Year, dtpFecha.Value.Month, dtpFecha.Value.Day);
-
-            // Error message
-            string errorMessage = "";
-
-            // Date value of alarm = Will be useful later.
-            DateTime alarmDate = new DateTime();
+            DateTime alarmDate = new DateTime(dtpFecha.Value.Year, dtpFecha.Value.Month, dtpFecha.Value.Day,0,0,0);
 
             // Make sure arguments are valid:
-            try
+            if (( st = LogicClass.validateArguments(Config.FORM_ALARM, ref alarmDate, txbHora.Text, txbMinuto.Text, txbSegundo.Text)) != OK)
             {
-                LogicClass.validateArguments(Config.FORM_ALARM, txbHora.Text, txbMinuto.Text, txbSegundo.Text, AlarmDate, out errorMessage, out alarmDate);
-            }
-            catch (Exception ex)
-            {
-
-                MessageBox.Show(ex.Message, "Something is wrong, please try again");
-
-            }
-
-            // Give error message and return if there is one
-            if (errorMessage != String.Empty)
-            {
-                MessageBox.Show(errorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogicClass.displayError(st);
                 return;
-
             }
+
 
             // Create alarm class
-            Alarm _Alarm = new Alarm(Int32.Parse(txbHora.Text), Int32.Parse(txbMinuto.Text), Int32.Parse(txbSegundo.Text), AlarmDate.Day, AlarmDate.Month, AlarmDate.Year, cbxMelodia.Text);
+            MessageBox.Show("hour: " + alarmDate.Hour + ". minute: " + alarmDate.Minute + ". second: " + alarmDate.Second);
+            Alarm _Alarm = new Alarm(alarmDate.Hour, alarmDate.Minute, alarmDate.Second, alarmDate.Day, alarmDate.Month, alarmDate.Year, cbxMelodia.Text);
 
-            // Create file to store alarm:
+            // Store alarm:
             try
             {
-                LogicClass.storeAlarm(_Alarm);
+                if ((st = LogicClass.storeAlarm(_Alarm)) != OK)
+                {
+                    LogicClass.displayError(st);
+                    return;
+                }
 
             } catch (Exception Ex)
             {
@@ -74,29 +67,35 @@ namespace Alarma
             }
 
             // Set up the timer:
-            System.Threading.TimerCallback cb = new System.Threading.TimerCallback( _Alarm.trigger );
 
-            System.Threading.Timer timer = new System.Threading.Timer(cb);
-
-            DateTime now = DateTime.Now;
-            DateTime dateAlarm = alarmDate;
-
-            if(now > dateAlarm)
+            if ((st = LogicClass.setTimer(_Alarm, alarmDate)) != OK)
             {
-                dateAlarm.AddDays(1.0);
+                LogicClass.displayError(st);
+                return;
             }
-            int msUntilAlarm = (int)(dateAlarm - now).TotalMilliseconds;
-
-            timer.Change(msUntilAlarm, Timeout.Infinite);
-
-
-
-
-
-
 
         }
 
+        private void cbxMelodia_SelectedIndexChanged(object sender, EventArgs e)
+        {
 
+        }
+
+        private void frmSetAlarm_Load(object sender, EventArgs e)
+        {
+            Logic LogicClass = new Alarma.Logic();
+
+            List < Sound > soundList = new List<Sound>();
+
+            soundList = LogicClass.getSoundList(Config.FILEPATH_ALARM_SOUND);
+
+            var dataSource = soundList;
+
+            cbxMelodia.DataSource = dataSource;
+            cbxMelodia.DisplayMember = "Name";
+
+            cbxMelodia.DropDownStyle = ComboBoxStyle.DropDownList;
+
+        }
     }
 }

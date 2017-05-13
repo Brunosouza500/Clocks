@@ -73,8 +73,9 @@
             this.cbxMelodia.FormattingEnabled = true;
             this.cbxMelodia.Location = new System.Drawing.Point(28, 258);
             this.cbxMelodia.Name = "cbxMelodia";
-            this.cbxMelodia.Size = new System.Drawing.Size(121, 21);
+            this.cbxMelodia.Size = new System.Drawing.Size(225, 21);
             this.cbxMelodia.TabIndex = 4;
+            this.cbxMelodia.SelectedIndexChanged += new System.EventHandler(this.cbxMelodia_SelectedIndexChanged);
             // 
             // btnSetAlarm
             // 
@@ -110,6 +111,7 @@
             this.Controls.Add(this.txbHora);
             this.Name = "frmSetAlarm";
             this.Text = "Alarma";
+            this.Load += new System.EventHandler(this.frmSetAlarm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
